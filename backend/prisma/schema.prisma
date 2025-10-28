@@ -1,0 +1,79 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String         @id @default(cuid())
+  email        String         @unique
+  createdAt    DateTime       @default(now())
+  subscription Subscription?
+  sites        Site[]
+
+  @@map("users")
+}
+
+model Subscription {
+  id                String   @id @default(cuid())
+  userId            String   @unique
+  user              User     @relation(fields: [userId], references: [id])
+  plan              String   // "basic"
+  priceUsdMonthly   Int      // 10
+  status            String   // "active" | "inactive"
+  startedAt         DateTime @default(now())
+  renewsAt          DateTime
+
+  @@map("subscriptions")
+}
+
+model Site {
+  id              String    @id @default(cuid())
+  userId          String
+  user            User      @relation(fields: [userId], references: [id])
+  domain          String    @unique
+  verified        Boolean   @default(false)
+  connectMethod   String    // "wordpress" | "github" | "manual"
+  createdAt       DateTime  @default(now())
+  lastAuditAt     DateTime?
+  lastScoreSEO    Int?      // 0-100
+  lastScoreIndex  Int?      // 0-100
+  lastIssues      Json?     // summary of detected issues
+  runs            AgentRun[]
+  recs            Recommendation[]
+
+  @@map("sites")
+}
+
+model AgentRun {
+  id          String   @id @default(cuid())
+  siteId      String
+  site        Site     @relation(fields: [siteId], references: [id])
+  startedAt   DateTime @default(now())
+  finishedAt  DateTime?
+  status      String   // "queued" | "running" | "succeeded" | "failed"
+  summary     String?
+  details     Json?    // structured output of crawl/analysis
+
+  @@map("agent_runs")
+}
+
+model Recommendation {
+  id          String   @id @default(cuid())
+  siteId      String
+  site        Site     @relation(fields: [siteId], references: [id])
+  createdAt   DateTime @default(now())
+  title       String
+  rationale   String
+  patch       Json?    // e.g. suggested robots.txt, sitemap.xml, meta tags, etc.
+  status      String   // "suggested" | "applied" | "dismissed"
+
+  @@map("recommendations")
+}
+

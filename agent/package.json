@@ -1,0 +1,24 @@
+{
+  "name": "aegisindex-agent",
+  "version": "1.0.0",
+  "description": "AegisIndex background agent service",
+  "main": "dist/index.js",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "run-site": "tsx src/index.ts run-site",
+    "run-all": "tsx src/index.ts run-all"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.7.1",
+    "dotenv": "^16.3.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.5",
+    "prisma": "^5.7.1",
+    "tsx": "^4.6.2",
+    "typescript": "^5.3.3"
+  }
+}
+

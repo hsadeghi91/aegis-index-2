@@ -1,0 +1,26 @@
+{
+  "name": "aegisindex-monorepo",
+  "version": "1.0.0",
+  "description": "AI-powered SEO/indexing automation service",
+  "private": true,
+  "workspaces": [
+    "frontend",
+    "backend",
+    "agent"
+  ],
+  "scripts": {
+    "dev": "concurrently \"npm run dev:frontend\" \"npm run dev:backend\"",
+    "dev:frontend": "cd frontend && npm run dev",
+    "dev:backend": "cd backend && npm run dev",
+    "dev:agent": "cd agent && npm run dev",
+    "build": "npm run build:frontend && npm run build:backend && npm run build:agent",
+    "build:frontend": "cd frontend && npm run build",
+    "build:backend": "cd backend && npm run build",
+    "build:agent": "cd agent && npm run build",
+    "install:all": "npm install && cd frontend && npm install && cd ../backend && npm install && cd ../agent && npm install"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
+
