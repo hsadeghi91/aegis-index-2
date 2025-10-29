@@ -110,6 +110,13 @@ cd frontend
 npm run dev
 ```
 
+#### Frontend Notes
+- Auth is client-side only via `AuthContext` (localStorage key `aegis_auth_user`).
+- New routes: `/signin`, `/signup`, `/dashboard` (gated).
+- Domain connect is stored under `aegis_connected_domain` and unlocks the wallet section.
+- Wallet: USDT (TRC20) address is displayed with QR; update it in `frontend/src/app/dashboard/page.tsx`.
+- UI uses a warm palette (amber). The logo file lives at `frontend/public/aegisindex-logo.svg`.
+
 ### Agent Service
 ```bash
 cd agent

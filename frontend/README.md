@@ -1,36 +1,54 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+## AegisIndex Frontend (Next.js App Router)
 
-## Getting Started
+Marketing site and dashboard for AegisIndex.
 
-First, run the development server:
+### Key Features
+- Warm, soft color palette built around Tailwind Amber (`amber-50` → `amber-900`).
+- Simple client-side auth with localStorage:
+  - `signin` and `signup` pages.
+  - `AuthContext` stores user: `{ email }` under `aegis_auth_user`.
+- Dashboard flow:
+  - Gated: redirects to `signin` when not authenticated.
+  - Connect Domain step, saved as `aegis_connected_domain`.
+  - USDT (TRC20) wallet display with QR and copy button.
+- Simple SVG logo at `public/aegisindex-logo.svg` and shown in `Navbar`.
 
+### Routes
+- `/` Marketing landing
+- `/signin` Sign in
+- `/signup` Sign up
+- `/dashboard` Auth-required dashboard, domain connect, and wallet section
+- `/billing` Placeholder billing page
+
+### Structure (selected)
+- `src/app/layout.tsx` — wraps app with `AuthProvider`.
+- `src/context/AuthContext.tsx` — minimal auth, localStorage-backed.
+- `src/components/Navbar.tsx` — logo + auth-aware actions; warm palette.
+- `src/app/dashboard/page.tsx` — gated view, domain connect, USDT TRC20 wallet.
+
+### Environment Variables
+- `NEXT_PUBLIC_API_BASE` — Backend API base URL (defaults to `http://localhost:4000`).
+
+### Development
 ```bash
+cd frontend
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+# http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Theming Notes
+- Primary action: `bg-amber-600 hover:bg-amber-500 text-white`.
+- Accents and links: `amber-700/800`.
+- Subtle surfaces: `amber-50/100`.
+- Replace legacy blues in new components for consistency.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Updating the Wallet Address
+Edit the constant in `src/app/dashboard/page.tsx`:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```ts
+const walletAddressUSDT_TRC20 = 'YOUR_TRC20_USDT_ADDRESS'
+```
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### Changing the Logo
+Replace `public/aegisindex-logo.svg` and ensure the size remains reasonable for the navbar.

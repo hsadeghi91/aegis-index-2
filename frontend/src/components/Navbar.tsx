@@ -2,9 +2,12 @@
 
 import Link from 'next/link'
 import { useState } from 'react'
+import { useAuth } from '../context/AuthContext'
+import Image from 'next/image'
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const { isAuthenticated, user, signOut } = useAuth()
 
   return (
     <nav className="bg-white shadow-sm border-b">
@@ -12,26 +15,40 @@ export default function Navbar() {
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <div className="flex-shrink-0">
-            <Link href="/" className="text-2xl font-bold text-blue-900">
-              AegisIndex
+            <Link href="/" className="flex items-center gap-2">
+              <Image src="/aegisindex-logo.svg" alt="AegisIndex" width={128} height={32} priority />
             </Link>
           </div>
 
           {/* Desktop Navigation */}
           <div className="hidden md:block">
             <div className="ml-10 flex items-baseline space-x-8">
-              <Link href="/" className="text-gray-700 hover:text-blue-900 px-3 py-2 text-sm font-medium">
+              <Link href="/" className="text-gray-700 hover:text-amber-800 px-3 py-2 text-sm font-medium">
                 Home
               </Link>
-              <Link href="/#pricing" className="text-gray-700 hover:text-blue-900 px-3 py-2 text-sm font-medium">
+              <Link href="/#pricing" className="text-gray-700 hover:text-amber-800 px-3 py-2 text-sm font-medium">
                 Pricing
               </Link>
-              <Link href="/dashboard" className="text-gray-700 hover:text-blue-900 px-3 py-2 text-sm font-medium">
+              <Link href="/dashboard" className="text-gray-700 hover:text-amber-800 px-3 py-2 text-sm font-medium">
                 Dashboard
               </Link>
-              <Link href="/dashboard" className="bg-blue-900 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-800">
-                Sign In
-              </Link>
+              {isAuthenticated ? (
+                <>
+                  <span className="text-gray-600 text-sm px-2">{user?.email}</span>
+                  <button onClick={signOut} className="bg-amber-100 text-amber-900 px-4 py-2 rounded-lg text-sm font-medium hover:bg-amber-200">
+                    Sign Out
+                  </button>
+                </>
+              ) : (
+                <>
+                  <Link href="/signin" className="text-gray-700 hover:text-amber-800 px-3 py-2 text-sm font-medium">
+                    Sign In
+                  </Link>
+                  <Link href="/signup" className="bg-amber-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-amber-500">
+                    Sign Up
+                  </Link>
+                </>
+              )}
             </div>
           </div>
 
@@ -52,18 +69,32 @@ export default function Navbar() {
         {isMenuOpen && (
           <div className="md:hidden">
             <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-              <Link href="/" className="text-gray-700 hover:text-blue-900 block px-3 py-2 text-base font-medium">
+              <Link href="/" className="text-gray-700 hover:text-amber-800 block px-3 py-2 text-base font-medium">
                 Home
               </Link>
-              <Link href="/#pricing" className="text-gray-700 hover:text-blue-900 block px-3 py-2 text-base font-medium">
+              <Link href="/#pricing" className="text-gray-700 hover:text-amber-800 block px-3 py-2 text-base font-medium">
                 Pricing
               </Link>
-              <Link href="/dashboard" className="text-gray-700 hover:text-blue-900 block px-3 py-2 text-base font-medium">
+              <Link href="/dashboard" className="text-gray-700 hover:text-amber-800 block px-3 py-2 text-base font-medium">
                 Dashboard
               </Link>
-              <Link href="/dashboard" className="bg-blue-900 text-white block px-3 py-2 rounded-lg text-base font-medium hover:bg-blue-800">
-                Sign In
-              </Link>
+              {isAuthenticated ? (
+                <>
+                  <div className="px-3 py-2 text-sm text-gray-600">{user?.email}</div>
+                  <button onClick={signOut} className="w-full bg-amber-100 text-amber-900 block px-3 py-2 rounded-lg text-base font-medium hover:bg-amber-200">
+                    Sign Out
+                  </button>
+                </>
+              ) : (
+                <>
+                  <Link href="/signin" className="text-gray-700 hover:text-amber-800 block px-3 py-2 text-base font-medium">
+                    Sign In
+                  </Link>
+                  <Link href="/signup" className="bg-amber-600 text-white block px-3 py-2 rounded-lg text-base font-medium hover:bg-amber-500">
+                    Sign Up
+                  </Link>
+                </>
+              )}
             </div>
           </div>
         )}

@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from 'recharts'
 import { RefreshCw, ExternalLink, AlertCircle, CheckCircle, Clock } from 'lucide-react'
+import { useAuth } from '../../context/AuthContext'
+import { useRouter } from 'next/navigation'
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE || 'http://localhost:4000'
 
@@ -45,10 +47,14 @@ interface AgentRun {
 }
 
 export default function Dashboard() {
+  const router = useRouter()
+  const { isAuthenticated, user } = useAuth()
   const [siteSummary, setSiteSummary] = useState<SiteSummary | null>(null)
   const [runs, setRuns] = useState<AgentRun[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [isRunningAudit, setIsRunningAudit] = useState(false)
+  const [connectedDomain, setConnectedDomain] = useState<string | null>(null)
+  const [domainInput, setDomainInput] = useState('')
 
   // Mock data for demo
   const mockSiteSummary: SiteSummary = {
@@ -124,11 +130,19 @@ export default function Dashboard() {
   ]
 
   useEffect(() => {
+    if (!isAuthenticated) {
+      router.push('/signin')
+      return
+    }
+    try {
+      const savedDomain = typeof window !== 'undefined' ? window.localStorage.getItem('aegis_connected_domain') : null
+      if (savedDomain) setConnectedDomain(savedDomain)
+    } catch {}
     // For demo purposes, use mock data
     setSiteSummary(mockSiteSummary)
     setRuns(mockRuns)
     setIsLoading(false)
-  }, [])
+  }, [isAuthenticated, router])
 
   const runAudit = async () => {
     setIsRunningAudit(true)
@@ -164,6 +178,22 @@ export default function Dashboard() {
     }
   }
 
+  const onConnectDomain = (e: React.FormEvent) => {
+    e.preventDefault()
+    const clean = domainInput.trim().replace(/^https?:\/\//, '').replace(/\/$/, '')
+    if (!clean) return
+    setConnectedDomain(clean)
+    if (typeof window !== 'undefined') {
+      window.localStorage.setItem('aegis_connected_domain', clean)
+    }
+  }
+
+  const walletAddressUSDT_TRC20 = 'TLm8qh5MEEpeG8TCRTtsxWZf4qUF48fX7y'
+
+  if (!isAuthenticated) {
+    return null
+  }
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -182,14 +212,14 @@ export default function Dashboard() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center">
-              <Link href="/" className="text-2xl font-bold text-blue-900">
+              <Link href="/" className="text-2xl font-bold text-amber-800">
                 AegisIndex
               </Link>
               <span className="ml-4 text-gray-500">Dashboard</span>
             </div>
             <div className="flex items-center space-x-4">
-              <span className="text-sm text-gray-600">demo@aegisindex.com</span>
-              <Link href="/" className="text-gray-600 hover:text-gray-900">
+              <span className="text-sm text-gray-600">{user?.email}</span>
+              <Link href="/" className="text-gray-600 hover:text-amber-800">
                 Back to Home
               </Link>
             </div>
@@ -217,13 +247,58 @@ export default function Dashboard() {
           {/* Main Content */}
           <div className="lg:col-span-3 space-y-8">
             {/* Site Health Scores */}
-            <div id="site-status" className="bg-white rounded-2xl shadow-lg p-6">
+            {!connectedDomain ? (
+              <div className="bg-white rounded-2xl shadow-lg p-6">
+                <h2 className="text-2xl font-bold text-gray-900 mb-2">Connect your domain</h2>
+                <p className="text-gray-600 mb-6">Enter your primary domain to start SEO analysis</p>
+                <form onSubmit={onConnectDomain} className="flex flex-col sm:flex-row gap-3">
+                  <input
+                    type="text"
+                    placeholder="example.com"
+                    value={domainInput}
+                    onChange={e => setDomainInput(e.target.value)}
+                    className="flex-1 border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-amber-600"
+                  />
+                  <button type="submit" className="bg-amber-600 text-white px-5 py-2 rounded-lg hover:bg-amber-500">Connect</button>
+                </form>
+              </div>
+            ) : (
+              <div className="bg-white rounded-2xl shadow-lg p-6">
+                <h2 className="text-2xl font-bold text-gray-900 mb-1">USDT (TRC20) Wallet</h2>
+                <p className="text-gray-600 mb-6">Send payment to unlock full analytics for {connectedDomain}</p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="bg-gray-50 border border-gray-200 rounded-xl p-4">
+                    <div className="text-sm text-gray-600 mb-2">Wallet Address</div>
+                    <div className="flex items-center gap-3">
+                      <code className="text-gray-900 break-all">{walletAddressUSDT_TRC20}</code>
+                      <button
+                        onClick={() => {
+                          if (typeof window !== 'undefined' && navigator.clipboard) {
+                            navigator.clipboard.writeText(walletAddressUSDT_TRC20)
+                          }
+                        }}
+                        className="px-3 py-1 text-sm border border-amber-300 text-amber-900 rounded-lg hover:bg-amber-50"
+                      >Copy</button>
+                    </div>
+                  </div>
+                  <div className="bg-white border border-gray-200 rounded-xl p-4 flex items-center justify-center">
+                    <img
+                      alt="USDT TRC20 QR"
+                      className="w-40 h-40"
+                      src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(walletAddressUSDT_TRC20)}`}
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+
+            <div id="site-status" className="bg-white rounded-2xl shadow-lg p-6 mt-8">
               <div className="flex justify-between items-center mb-6">
                 <h2 className="text-2xl font-bold text-gray-900">Site Health Score</h2>
                 <button
                   onClick={runAudit}
                   disabled={isRunningAudit}
-                  className="bg-blue-900 text-white px-4 py-2 rounded-lg hover:bg-blue-800 disabled:opacity-50 flex items-center space-x-2"
+                  className="bg-amber-600 text-white px-4 py-2 rounded-lg hover:bg-amber-500 disabled:opacity-50 flex items-center space-x-2"
                 >
                   <RefreshCw className={`w-4 h-4 ${isRunningAudit ? 'animate-spin' : ''}`} />
                   <span>{isRunningAudit ? 'Running...' : 'Run Audit Now'}</span>
@@ -247,17 +322,17 @@ export default function Dashboard() {
                   )}
                 </div>
 
-                <div className="bg-blue-50 p-6 rounded-xl">
+                <div className="bg-amber-50 p-6 rounded-xl">
                   <div className="flex items-center justify-between mb-2">
-                    <h3 className="text-lg font-semibold text-blue-800">Indexability Score</h3>
-                    <CheckCircle className="w-6 h-6 text-blue-600" />
+                    <h3 className="text-lg font-semibold text-amber-800">Indexability Score</h3>
+                    <CheckCircle className="w-6 h-6 text-amber-600" />
                   </div>
-                  <div className="text-4xl font-bold text-blue-600 mb-2">
+                  <div className="text-4xl font-bold text-amber-600 mb-2">
                     {siteSummary?.lastScoreIndex || 0}
                   </div>
-                  <div className="text-sm text-blue-700">out of 100</div>
+                  <div className="text-sm text-amber-700">out of 100</div>
                   {siteSummary?.lastIssues?.trends && (
-                    <div className="text-xs text-blue-600 mt-1">
+                    <div className="text-xs text-amber-700 mt-1">
                       {siteSummary.lastIssues.trends.indexTrend === 'improving' ? '↗ Improving' : 
                        siteSummary.lastIssues.trends.indexTrend === 'declining' ? '↘ Declining' : '→ Stable'}
                     </div>

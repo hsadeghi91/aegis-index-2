@@ -1,0 +1,17 @@
+<svg width="128" height="32" viewBox="0 0 128 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Simple shield + A mark with warm palette -->
+  <defs>
+    <linearGradient id="warm" x1="0" y1="0" x2="0" y2="32" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F59E0B"/>
+      <stop offset="1" stop-color="#FBBF24"/>
+    </linearGradient>
+  </defs>
+  <g>
+    <path d="M8 3 L18 6 V14 C18 19 14.5 23.5 10 25 C5.5 23.5 2 19 2 14 V6 L8 3 Z" fill="url(#warm)"/>
+    <path d="M7.9 18 L12.1 18 L10 13 Z" fill="#FFFFFF"/>
+  </g>
+  <g transform="translate(24,6)">
+    <text x="0" y="16" font-family="Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial" font-size="16" font-weight="700" fill="#92400E">Aegis</text>
+    <text x="48" y="16" font-family="Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial" font-size="16" font-weight="700" fill="#B45309">Index</text>
+  </g>
+</svg>
